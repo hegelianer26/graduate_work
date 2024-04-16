@@ -1,0 +1,14 @@
+redis==4.4.2
+elasticsearch[async]==7.9.1
+fastapi==0.90.0
+orjson==3.8.2
+pydantic==1.9.0
+uvicorn==0.12.2
+uvloop==0.17.0
+gunicorn==21.2.0
+httptools==0.6.1
+python-dotenv==1.0.0
+aiohttp
+python-jose
+requests
+passlib

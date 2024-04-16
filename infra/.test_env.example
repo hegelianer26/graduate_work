@@ -1,0 +1,52 @@
+
+# database
+DB_NAME=postgres_1
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_PORT='5432'
+DB_HOST=db
+
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=postgres_1
+
+
+ALLOWED_HOSTS='0.0.0.0, localhost, 127.0.0.1, '
+DB_options='-c search_path=content'
+DB_ENGINE=django.db.backends.postgresql
+
+
+# elasticsearch
+ELASTIC_HOST=elasticsearch
+ELASTIC_PORT=9200
+ELASTIC_INDEX_MOVIES_NAME = 'index'
+ELASTIC_INDEX_GENRES_NAME = 'genres'
+ELASTIC_INDEX_PERSONS_NAME = 'persons'
+# etl
+LOG_LEVEL = 'INFO'
+
+
+# redis
+REDIS_HOST=redis
+REDIS_PORT=6379
+
+# elasticsearch
+ELASTIC_HOST=elasticsearch
+ELASTIC_PORT=9200
+ELASTIC_INDEX_MOVIES_NAME = 'test_index'
+ELASTIC_INDEX_GENRES_NAME = 'test_genres'
+ELASTIC_INDEX_PERSONS_NAME = 'test_persons'
+# etl
+LOG_LEVEL = 'INFO'
+
+
+# redis
+REDIS_HOST=movie_redis
+REDIS_PORT=6379
+
+# fastapi
+fastapi_project_name = 'api'
+
+#api
+API_HOST = fastapi
+API_PORT = 8080
