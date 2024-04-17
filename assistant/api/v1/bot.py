@@ -9,7 +9,7 @@ from redis.asyncio import Redis
 
 from scenes.scenes import SCENES, DEFAULT_SCENE, ERROR_SCENE
 from services.tts import get_tts, Speech_and_text
-from assistant.services.text_handling.extractor import (
+from services.text_handling.extractor import (
     get_extractor, EntityExtractor)
 from services.request_parsers import Request_parser, get_request_parser_duke
 from db.redis import get_redis
@@ -38,10 +38,10 @@ async def alice(request: Request):
     next_scene = await current_scene.move(request_parser)
 
     if next_scene is not None:
-        print(f'Moving from scene {current_scene.id()} to {next_scene.id()}')
+        logger.info(f'Moving from scene {current_scene.id()} to {next_scene.id()}')
         return await next_scene.reply(request)
     else:
-        print(f'Failed to parse user request at scene {current_scene.id()}')
+        logger.info(f'Failed to parse user request at scene {current_scene.id()}')
         return await current_scene.fallback(request)
 
 
@@ -84,7 +84,7 @@ async def duke(req: Request,
         await redis.setex(
             session["session_id"], 3600, json.dumps(searched_ents))
         reply_tts = reply.get('response', {}).get('tts')
-        # return reply
+
         aud = await tts.dictate(reply_tts)
         return FileResponse(aud, media_type='audio/mpeg', filename='audio.mp3')
     else:
@@ -127,7 +127,6 @@ async def duke_textual(text_input: TextInput,
     if next_scene is not None:
         logger.info(
             f'Moving from scene {current_scene.id()} to {next_scene.id()}')
-        logger.info(curent_intent)
         reply = await next_scene.reply(request_parser)
         searched_ents = reply.get('session_state')
         await redis.setex(

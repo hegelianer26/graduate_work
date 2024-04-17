@@ -21,7 +21,7 @@ logger.add(
 
 redis_host = redis_config.host
 redis_port = redis_config.port
-redis.redis = Redis(decode_responses=True)
+redis.redis = Redis(host=redis_host, port=redis_port, decode_responses=True)
 
 
 @asynccontextmanager
@@ -30,9 +30,11 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title=fastapi_config.project_name, lifespan=lifespan)
+app = FastAPI(title=fastapi_config.project_name,
+              lifespan=lifespan)
 
-app.add_middleware(SessionMiddleware, secret_key="your_secret_key")
+app.add_middleware(SessionMiddleware,
+                   secret_key=fastapi_config.session_key)
 
 app.include_router(bot.router)
 

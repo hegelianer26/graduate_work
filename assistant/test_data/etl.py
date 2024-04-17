@@ -3,12 +3,12 @@ from sqlalchemy import create_engine
 import uuid
 import datetime
 import ast
+from core.config import postgres_config
 
 df = pd.read_excel('kinopoisk1.xlsx')
 
-
-engine = create_engine('postgresql://postgres:postgres@127.0.0.1:5432/postgres_1')
-
+engine = create_engine(
+    f'postgresql://{postgres_config.user}:{postgres_config.password}@{postgres_config.host}:{postgres_config.port}/{postgres_config.dbname}')
 
 df['movie_id'] = [uuid.uuid4() for _ in range(len(df))]
 df['created'] = [datetime.datetime.now() for _ in range(len(df))]
@@ -34,8 +34,6 @@ df_link['role'] = ['director' for _ in range(len(df_link))]
 df_link['created'] = [datetime.datetime.now() for _ in range(len(df_link))]
 
 df_link.columns = ['film_work_id', 'person_id', 'id',  'role', 'created']
-
-engine = create_engine('postgresql://postgres:postgres@127.0.0.1:5432/postgres_1')
 
 df_movies.to_sql('movies', engine, if_exists='append', index=False)
 df_persons.to_sql('persons', engine, if_exists='replace', index=False)

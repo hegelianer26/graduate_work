@@ -34,7 +34,6 @@ services:
 
     depends_on:
       - admin
-      - auth
       - movies
 
 
@@ -71,6 +70,20 @@ services:
       - .env_
 
 
+  assistant:
+    build: ../assistant
+    container_name: assistant_api
+    restart: always
+    ports:
+      - "8090:8090"
+    depends_on:
+      - movies
+      - elasticsearch
+      - redis
+    env_file:
+      - .env
+
+
   redis:
     container_name: movie_redis
     image: redis:7.2-rc-alpine
@@ -104,19 +117,19 @@ services:
   #     - movies
 
 
-  auth:
-    build: ../auth-service
-    container_name: auth
-    depends_on:
-      - db
-      - redis
-    ports: 
-      - "8081:8081"
-    env_file:
-      - .env_auth_db
-      - .env_auth_fastapi
-      - .env_redis
-      - .env_auth_ya
+  # auth:
+  #   build: ../auth-service
+  #   container_name: auth
+  #   depends_on:
+  #     - db
+  #     - redis
+  #   ports: 
+  #     - "8081:8081"
+  #   env_file:
+  #     - .env_auth_db
+  #     - .env_auth_fastapi
+  #     - .env_redis
+  #     - .env_auth_ya
 
 
 volumes:

@@ -1,13 +1,12 @@
 from fuzzywuzzy import fuzz
-from assistant.core.config import fuzz_config
-from assistant.services.text_handling.model_loader import ft_model, spacy_model
+from core.config import fuzz_config, fasttext_config
+from services.text_handling.model_loader import ft_model, spacy_model
 import asyncio
 
 
 class EntityExtractor:
     def __init__(self):
         self.movie_list_file = fuzz_config.movie_list_file
-        self.threshold = fuzz_config.threshold
         # self.movie_list = self.load_movie_list(self.movie_list_file)
 
     async def load_movie_list(self, movie_list_file):
@@ -22,7 +21,7 @@ class EntityExtractor:
         return movie_list
 
     async def extract_label(self, text):
-        threshold = 0.80
+        threshold = fasttext_config.threshold
         labels, probabilities = await asyncio.to_thread(ft_model.predict, text)
 
         if probabilities[0] >= threshold:
@@ -42,7 +41,7 @@ class EntityExtractor:
             movie_lower = movie.lower()
             # similarity_score = fuzz.ratio(text_lower, movie_lower)
             similarity_score = fuzz.partial_ratio(text_lower, movie_lower)
-            if similarity_score >= 65 and similarity_score > best_score:
+            if similarity_score >= fuzz_config.threshold and similarity_score > best_score:
                 best_match = movie
                 best_score = similarity_score
 

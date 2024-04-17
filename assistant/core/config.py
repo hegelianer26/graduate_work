@@ -42,9 +42,16 @@ class FuzzyConfig(BaseSettings):
         env_file_encoding='utf-8', extra='ignore')
 
 
-class Settings(BaseSettings):
+class PostgresConfig(BaseSettings):
+
+    host: str
+    user: str
+    password: str
+    dbname: str
+    port: int
+
     model_config = SettingsConfigDict(
-        env_file=".env", env_prefix='fuzzy_',
+        env_file=".env", env_prefix='postgres_',
         env_file_encoding='utf-8', extra='ignore')
 
 
@@ -52,3 +59,4 @@ fastapi_config = FastapiConfig()
 redis_config = RedisConfig()
 fasttext_config = FasttextConfig()
 fuzz_config = FuzzyConfig()
+postgres_config = PostgresConfig()
