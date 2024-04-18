@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
-from redis.asyncio import Redis
-from fastapi import Depends
 from db.redis import get_redis
-from scenes.state import STATE_REQUEST_KEY, STATE_RESPONSE_KEY
+from scenes.state import STATE_REQUEST_KEY
 import json
 
 
@@ -14,11 +12,11 @@ class AbstractRequestParser(ABC):
         pass
 
     @abstractmethod
-    def get_movie(self, intent_name):
+    def get_movie(self, intent_name: str):
         pass
 
     @abstractmethod
-    def get_author_name(self, intent_name):
+    def get_author_name(self, intent_name: str):
         pass
 
     @abstractmethod
@@ -34,11 +32,11 @@ class AbstractRequestParser(ABC):
         pass
 
 
-class Request_parser(AbstractRequestParser):
-    def __init__(self, request_body):
+class RequestParser(AbstractRequestParser):
+    def __init__(self, request_body: str):
         self.request_body = request_body
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str):
         return self.request_body[key]
 
     @property
@@ -49,16 +47,16 @@ class Request_parser(AbstractRequestParser):
     async def type(self):
         return self.request_body.get('request', {}).get('type')
 
-    async def get_movie(self, intent_name):
+    async def get_movie(self, intent_name: str):
         try:
             return self.intents[intent_name]['slots']['movie']['value']
         except KeyError:
             return []
 
-    async def get_author_name(self, intent_name):
+    async def get_author_name(self, intent_name: str):
         if 'slots' in self.intents[intent_name] and 'author_name' in self.intents[intent_name]['slots']:
-            author_last_name = await self.intents[intent_name]['slots']['author_name']['value'].get('last_name', '')
-            author_first_name = await self.intents[intent_name]['slots']['author_name']['value'].get('first_name', '')
+            author_last_name = self.intents[intent_name]['slots']['author_name']['value'].get('last_name', '')
+            author_first_name = self.intents[intent_name]['slots']['author_name']['value'].get('first_name', '')
             author = author_first_name + ' ' + author_last_name
 
             return author
@@ -80,22 +78,22 @@ class Request_parser(AbstractRequestParser):
         return intent_name
 
 
-class Request_parser_duke(AbstractRequestParser):
+class RequestParserDuke(AbstractRequestParser):
 
-    def __init__(self, entities):
+    def __init__(self, entities: str):
         self.entities = entities
 
     @property
     async def intents(self):
         return self.entities
 
-    async def get_movie(self, intent_name):
+    async def get_movie(self, intent_name: str):
         try:
             return self.entities['film_name']
         except IndexError:
             return []
 
-    async def get_author_name(self, intent_name):
+    async def get_author_name(self, intent_name: str):
         try:
             return self.entities['author']
         except IndexError:
@@ -127,5 +125,5 @@ class Request_parser_duke(AbstractRequestParser):
             return redis_data.get('movie')
 
 
-async def get_request_parser_duke(intetns):
-    return Request_parser_duke(intetns)
+async def get_request_parser_duke(intetns: str):
+    return RequestParserDuke(intetns)

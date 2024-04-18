@@ -3,9 +3,21 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class FastapiConfig(BaseSettings):
     project_name: str
+    project_host: str
+    project_port: str
+    project_protocol: str
     movie_host: str
     movie_port: str
+    movie_protocol: str
     session_key: str
+
+    @property
+    def movie_url(self):
+        return f'{self.movie_protocol}://{self.movie_host}:{self.movie_port}'
+
+    @property
+    def assistant_url(self) -> str:
+        return f'{self.project_protocol}://{self.project_host}:{self.project_port}'
 
     model_config = SettingsConfigDict(
         env_file=".env", env_prefix='fastapi_',

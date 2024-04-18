@@ -1,6 +1,7 @@
 from http import HTTPStatus
 import pytest
 import requests
+from core.config import fastapi_config
 
 
 @pytest.mark.parametrize(
@@ -22,7 +23,8 @@ import requests
     )
 def test_states(query_data, expected_answer):
     response = requests.post(
-        'http://localhost:8092/duke_textual', json=query_data)
+        f'{fastapi_config.assistant_url}/duke_textual', json=query_data)
+
     assert response.status_code == expected_answer['status']
 
 
@@ -46,7 +48,7 @@ def test_states(query_data, expected_answer):
 def test_movies(query_data, expected_answer):
 
     response = requests.post(
-        'http://localhost:8092/duke_textual', json=query_data)
+        f'{fastapi_config.assistant_url}/duke_textual', json=query_data)
     response_text = response.json().get('response').get('text')
 
     assert expected_answer['author'] in response_text
@@ -72,7 +74,8 @@ def test_movies(query_data, expected_answer):
 )
 def test_ammount(query_data, expected_answer):
 
-    response = requests.post('http://localhost:8092/duke_textual', json=query_data)
+    response = requests.post(
+        f'{fastapi_config.assistant_url}/duke_textual', json=query_data)
     response_text = response.json().get('response').get('text')
 
     assert expected_answer['ammount'] in response_text
@@ -98,7 +101,8 @@ def test_ammount(query_data, expected_answer):
 )
 def test_duration(query_data, expected_answer):
 
-    response = requests.post('http://localhost:8092/duke_textual', json=query_data)
+    response = requests.post(
+        f'{fastapi_config.assistant_url}/duke_textual', json=query_data)
     response_text = response.json().get('response').get('text')
 
     assert expected_answer['ammount'] in response_text
@@ -119,8 +123,8 @@ def test_duration(query_data, expected_answer):
     ]
 )
 def test_help(query_data, expected_answer):
-
-    response = requests.post('http://localhost:8092/duke_textual', json=query_data)
+    response = requests.post(
+        f'{fastapi_config.assistant_url}/duke_textual', json=query_data)
     response_scene = response.json().get('session_state').get('scene')
 
     assert response_scene == expected_answer['scene']
@@ -142,7 +146,8 @@ def test_help(query_data, expected_answer):
 )
 def test_error(query_data, expected_answer):
 
-    response = requests.post('http://localhost:8092/duke_textual', json=query_data)
+    response = requests.post(
+        f'{fastapi_config.assistant_url}/duke_textual', json=query_data)
     response_scene = response.json().get('session_state').get('scene')
 
     assert response_scene == expected_answer['scene']
@@ -164,7 +169,8 @@ def test_error(query_data, expected_answer):
 )
 def test_power(query_data, expected_answer):
 
-    response = requests.post('http://localhost:8092/duke_textual', json=query_data)
+    response = requests.post(
+        f'{fastapi_config.assistant_url}/duke_textual', json=query_data)
     response_scene = response.json().get('session_state').get('scene')
 
     assert response_scene == expected_answer['scene']

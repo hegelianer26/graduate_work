@@ -138,29 +138,35 @@ class Movie_author(MovieScene):
 
     def __init__(self, movie):
         self.movie = movie
+        self.session = aiohttp.ClientSession()
 
-    async def reply(self, request: AbstractRequestParser):
+    async def __aenter__(self):
+        return self
 
-        async with aiohttp.ClientSession() as session:
+    async def __aexit__(self, *args):
+        await self.session.close()
 
-            url = f'http://{fastapi_config.movie_host}:{fastapi_config.movie_port}/api/v1/films/search/?query={self.movie}'
-            async with session.get(url) as response:
-                if response.status != 200:
-                    selected_template = random.choice(
-                        RESPONSE_NOT_FOUND)
-                    return await self.make_response(text=selected_template)
-                try:
-                    data = await response.json()
-                    author = data[0].get('directors')[0].get('full_name')
-                    selected_template = random.choice(
-                        RESPONSE_TEMPLATES_CREATOR).format(author=author)
-                    return await self.make_response(
-                        text=selected_template, state={'author': author,
-                                                       'movie': self.movie})
-                except IndexError:
-                    selected_template = random.choice(
-                        RESPONSE_NOT_AUTHOR)
-                    return await self.make_response(text=selected_template)
+    async def reply(self,
+                    request: AbstractRequestParser):
+
+        url = f'{fastapi_config.movie_url}/api/v1/films/search/?query={self.movie}'
+        async with self.session.get(url) as response:
+            if response.status != 200:
+                selected_template = random.choice(
+                    RESPONSE_NOT_FOUND)
+                return await self.make_response(text=selected_template)
+            try:
+                data = await response.json()
+                author = data[0].get('directors')[0].get('full_name')
+                selected_template = random.choice(
+                    RESPONSE_TEMPLATES_CREATOR).format(author=author)
+                return await self.make_response(
+                    text=selected_template, state={'author': author,
+                                                   'movie': self.movie})
+            except IndexError:
+                selected_template = random.choice(
+                    RESPONSE_NOT_AUTHOR)
+                return await self.make_response(text=selected_template)
 
     async def handle_local_intents(self, request: AbstractRequestParser):
         pass
@@ -170,28 +176,33 @@ class Movie_time(MovieScene):
 
     def __init__(self, movie):
         self.movie = movie
+        self.session = aiohttp.ClientSession()
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *args):
+        await self.session.close()
 
     async def reply(self, request: AbstractRequestParser):
-        async with aiohttp.ClientSession() as session:
+        url = f'{fastapi_config.movie_url}/api/v1/films/search/?query={self.movie}'
+        async with self.session.get(url) as response:
+            if response.status != 200:
+                selected_template = random.choice(
+                    RESPONSE_NOT_FOUND)
+                return await self.make_response(text=selected_template)
+            try:
+                data = await response.json()
+                duration = data[0].get('duration')
 
-            url = f'http://{fastapi_config.movie_host}:{fastapi_config.movie_port}/api/v1/films/search/?query={self.movie}'
-            async with session.get(url) as response:
-                if response.status != 200:
-                    selected_template = random.choice(
-                        RESPONSE_NOT_FOUND)
-                    return await self.make_response(text=selected_template)
-                try:
-                    data = await response.json()
-                    duration = data[0].get('duration')
-
-                    selected_template = random.choice(
-                        RESPONSE_TEMPLATES_COUNT).format(duration=duration)
-                    return await self.make_response(
-                        text=selected_template, state={'movie': self.movie})
-                except IndexError:
-                    selected_template = random.choice(
-                        RESPONSE_NOT_COUNT)
-                    return await self.make_response(text=selected_template)
+                selected_template = random.choice(
+                    RESPONSE_TEMPLATES_COUNT).format(duration=duration)
+                return await self.make_response(
+                    text=selected_template, state={'movie': self.movie})
+            except IndexError:
+                selected_template = random.choice(
+                    RESPONSE_NOT_COUNT)
+                return await self.make_response(text=selected_template)
 
     async def handle_local_intents(self, request: AbstractRequestParser):
         pass
@@ -201,31 +212,36 @@ class Count_movies(MovieScene):
 
     def __init__(self, author):
         self.author = author
+        self.session = aiohttp.ClientSession()
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *args):
+        await self.session.close()
 
     async def reply(self, request: AbstractRequestParser):
 
-        async with aiohttp.ClientSession() as session:
-
-            url = f'http://{fastapi_config.movie_host}:{fastapi_config.movie_port}/api/v1/persons/search/?query={self.author}'
-            async with session.get(url) as response:
-                if response.status != 200:
-                    selected_template = random.choice(RESPONSE_NOT_FOUND)
-                    return await self.make_response(text=selected_template)
-
-                data = await response.json()
-                ids = data[0].get('film_ids')
-                ids_list = ids.split(", ")
-                ammount = len(ids_list)
-
-            if ammount is None or ammount == 0:
-                selected_template = random.choice(RESPONSE_NOT_COUNT)
+        url = f'{fastapi_config.movie_url}/api/v1/persons/search/?query={self.author}'
+        async with self.session.get(url) as response:
+            if response.status != 200:
+                selected_template = random.choice(RESPONSE_NOT_FOUND)
                 return await self.make_response(text=selected_template)
 
-            selected_template = random.choice(
-                RESPONSE_TEMPLATES_AMMOUNT).format(ammount=ammount)
-            return await self.make_response(
-                text=selected_template,
-                state={'author': self.author},)
+            data = await response.json()
+            ids = data[0].get('film_ids')
+            ids_list = ids.split(", ")
+            ammount = len(ids_list)
+
+        if ammount is None or ammount == 0:
+            selected_template = random.choice(RESPONSE_NOT_COUNT)
+            return await self.make_response(text=selected_template)
+
+        selected_template = random.choice(
+            RESPONSE_TEMPLATES_AMMOUNT).format(ammount=ammount)
+        return await self.make_response(
+            text=selected_template,
+            state={'author': self.author},)
 
     async def handle_local_intents(self, request: AbstractRequestParser):
         pass

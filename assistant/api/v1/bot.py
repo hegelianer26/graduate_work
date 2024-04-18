@@ -11,7 +11,7 @@ from scenes.scenes import SCENES, DEFAULT_SCENE, ERROR_SCENE
 from services.tts import get_tts, Speech_and_text
 from services.text_handling.extractor import (
     get_extractor, EntityExtractor)
-from services.request_parsers import Request_parser, get_request_parser_duke
+from services.request_parsers import RequestParser, get_request_parser_duke
 from db.redis import get_redis
 
 
@@ -24,6 +24,7 @@ async def alice(request: Request):
     event = await request.json()
     curent_intent = event.get('request', {}).get('nlu', {}).get('intents', {})
     new_session = event.get('session', {}).get('new')
+    logger.debug('curent_intent is', curent_intent)
 
     if new_session:
         return await DEFAULT_SCENE().reply(request)
@@ -34,7 +35,7 @@ async def alice(request: Request):
 
     current_scene = SCENES.get(label, DEFAULT_SCENE)()
 
-    request_parser = Request_parser(event)
+    request_parser = RequestParser(event)
     next_scene = await current_scene.move(request_parser)
 
     if next_scene is not None:
@@ -55,6 +56,7 @@ async def duke(req: Request,
     transcription = await tts.recognize(file_input)
 
     curent_intent = await extractor.process_text_async(transcription)
+    logger.debug('curent_intent is', curent_intent)
 
     session = req.session
     session_id = session.get('session_id')
@@ -104,7 +106,7 @@ async def duke_textual(text_input: TextInput,
                        redis: Redis = Depends(get_redis)):
 
     curent_intent = await extractor.process_text_async(text_input.text)
-
+    logger.debug('curent_intent is', curent_intent)
     session = req.session
     session_id = session.get('session_id')
 
